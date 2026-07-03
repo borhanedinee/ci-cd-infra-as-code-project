@@ -31,6 +31,17 @@ Instead of storing long-lived, high-risk `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACC
 
 ---
 
+## 📡 Dynamic Host Discovery with Ansible
+
+To keep the pipeline fully automated, I avoided using a static inventory file with hardcoded IP addresses (which change on every deployment). Instead, I configured Ansible to perform **Dynamic Host Discovery** using the `amazon.aws.aws_ec2` inventory plugin in [aws_ec2.yaml](file:///c:/Users/Borhan/Desktop/study/gitops/ci-ci-infra-as-code/ansible/aws_ec2.yaml).
+
+At runtime, this file connects to AWS using the pipeline's OIDC context and:
+* Queries all running EC2 instances in `us-east-1`.
+* Dynamically filters and groups the hosts based on their AWS tags (`Role = master` into `aws_role_master`, and `Role = worker` into `aws_role_worker`).
+* Configures connection parameters (`ansible_user = ubuntu`) on the fly.
+
+---
+
 ## 🛠️ Key Challenges & Solutions
 
 ### 🔑 The SSH Private Key Problem in CI/CD
@@ -40,7 +51,7 @@ During local development, Terraform generated a new key pair dynamically in-memo
 3. If Terraform generated a new key on every run in CI, the local key would also lose access.
 
 #### The Temporary Solution:
-We updated the EC2 configuration to use a static, pre-created AWS Key Pair named `ci-cd-key`. 
+I updated the EC2 configuration to use a static, pre-created AWS Key Pair named `ci-cd-key`. 
 The corresponding private key content was added as a secure, encrypted **GitHub Action Secret** (`SSH_PRIVATE_KEY`). 
 During the Ansible execution step, the workflow dynamically recreates the key file on the runner:
 ```yaml
@@ -55,6 +66,7 @@ During the Ansible execution step, the workflow dynamically recreates the key fi
 While this manual secret injection works, it requires manual copy-pasting of keys. A more robust, highly secure future upgrade will be to use **AWS Secrets Manager** or **HashiCorp Vault** where:
 * Terraform automatically uploads the dynamically generated private key to AWS Secrets Manager.
 * The Ansible job fetches it dynamically at runtime using AWS OIDC authentication, removing all manual steps and human key handling.
+
 
 ---
 
