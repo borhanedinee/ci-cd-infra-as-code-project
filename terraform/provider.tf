@@ -1,4 +1,10 @@
 terraform {
+  backend "s3" {
+    region  = "us-east-1"
+    encrypt = true
+    # bucket and key are passed dynamically via -backend-config in the CI/CD pipeline
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
