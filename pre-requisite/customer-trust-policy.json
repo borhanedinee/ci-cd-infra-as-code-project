@@ -12,7 +12,7 @@
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                    "token.actions.githubusercontent.com:sub": "repo:borhanedinee/ci-cd-infra-as-code-project:*"
+                    "token.actions.githubusercontent.com:sub": "repo:borhanedinee/cicd-production-ready-gitops-IaC-pipeline:*"
                 }
             }
         }

@@ -11,6 +11,11 @@ variable "ami_id" {
 }
 
 
+variable "key_name" {
+  type    = string
+  default = "ci-cd-key"
+}
+
 variable "master_instance_type" {
   type        = string
   default     = "t3.medium"
