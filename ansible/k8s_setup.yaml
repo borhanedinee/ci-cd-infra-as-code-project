@@ -170,4 +170,4 @@
 
   - name: Install monitoring-app using kubectl
     command: kubectl apply -f /home/ubuntu/monitoring-app.yaml
-    changed_when: "'configured' in kubectl_out.stdout or 'created' in kubectl_out.stdout"
+   
