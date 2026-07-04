@@ -19,10 +19,20 @@ graph TD
     H -->|Sync & Deploy| I[Prometheus & Grafana]
 ```
 
-* **Infrastructure as Code:** [terraform/](file:///c:/Users/Borhan/Desktop/study/gitops/ci-ci-infra-as-code/terraform) provisions the security groups and EC2 instances.
-* **Configuration Management:** [ansible/](file:///c:/Users/Borhan/Desktop/study/gitops/ci-ci-infra-as-code/ansible) prepares all nodes, installs container runtimes (containerd), initializes the master node, joins the worker nodes, and installs **Argo CD**.
-* **GitOps CI/CD:** [.github/workflows/deploy.yaml](file:///c:/Users/Borhan/Desktop/study/gitops/ci-ci-infra-as-code/.github/workflows/deploy.yaml) connects AWS and GitHub via secure OpenID Connect (OIDC) to run the full build on every push.
-* **Continuous Deployment (Two-Repo Architecture):** A separate application repository holds the Helm charts and manifests for Prometheus and Grafana. Argo CD continuously watches this repo and synchronizes the cluster state automatically, cleanly separating infrastructure provisioning from application deployment.
+* **GitOps CI/CD:** [.github/workflows/deploy.yaml](.github/workflows/deploy.yaml) connects AWS and GitHub via secure OpenID Connect (OIDC) to run the full build on every push.
+
+### 🧩 The Two-Repo GitOps Architecture
+To adhere to industry-standard GitOps principles, this project is split into two distinct repositories. This cleanly separates infrastructure provisioning from application deployment:
+
+1. **Infrastructure & Cluster Provisioning (This Repo):** 
+   [borhanedinee/cicd-production-ready-gitops-IaC-pipeline](https://github.com/borhanedinee/cicd-production-ready-gitops-IaC-pipeline)
+   * **Terraform:** Provisions the AWS security groups and EC2 instances.
+   * **Ansible:** Prepares all nodes, installs container runtimes, initializes the master node, joins the worker nodes, and installs **Argo CD**.
+
+2. **Application State & Cluster Syncing (Apps Repo):** 
+   [borhanedinee/k8s-setup-argocd](https://github.com/borhanedinee/k8s-setup-argocd)
+   * Holds the Helm charts and K8s manifests for the monitoring stack (Prometheus and Grafana). 
+   * **Argo CD** (running in the cluster) continuously watches this repository and synchronizes the state automatically. When you push changes here, Argo CD updates the live cluster apps immediately without triggering any infrastructure pipelines!
 
 ---
 
