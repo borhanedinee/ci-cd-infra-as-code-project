@@ -170,24 +170,6 @@
         name: helm
         classic: yes
 
-    - name: Install pip3 on the master node
-      apt:
-        name: python3-pip
-        state: present
-        update_cache: yes
-
-    - name: Install Python dependencies for kubernetes.core modules on master
-      pip:
-        name:
-          - kubernetes
-          - PyYAML
-        state: present
-
-    - name: Install kubernetes.core collection (provides the helm module)
-      command: ansible-galaxy collection install kubernetes.core
-      changed_when: false
-      failed_when: false
-
     - name: Create namespace for monitoring
       kubernetes.core.k8s:
         name: monitoring
@@ -195,21 +177,17 @@
         kind: Namespace
         state: present
 
-    - name: Deploy kube-prometheus-stack via Helm module
-      kubernetes.core.helm:
-        name: prometheus
-        chart_ref: prometheus-community/kube-prometheus-stack
-        chart_repo_url: https://prometheus-community.github.io/helm-charts
-        release_namespace: monitoring
-        create_namespace: false
-        wait: true
-        timeout: "10m0s"
-        values:
-          prometheus:
-            service:
-              type: NodePort
-              nodePort: 30090
-          grafana:
-            service:
-              type: NodePort
-              nodePort: 30091
+    - name: Add grafana helm
+      command: helm repo add grafana-community https://grafana-community.github.io/helm-charts
+
+    - name: Add prometheus helm
+      command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+    - name: Upgrade helm charts
+      command: helm repo update
+
+    - name: Install grafana
+      command: helm install my-grafana grafana-community/grafana --namespace monitoring
+
+    - name: Install prometheus
+      command: helm install my-prometheus prometheus-community/prometheus --namespace monitoring
